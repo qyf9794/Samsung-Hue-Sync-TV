@@ -7,9 +7,9 @@ function scenario(coreAccepts) {
   const names = ['status','detail','area','sensitivity','previous','next','less','more','start','stop','bridge-ip','pair'];
   const nodes = {};
   names.forEach(name => { nodes[name] = {id:name,textContent:'',value:'',focus(){},addEventListener(){}}; });
-  nodes['bridge-ip'].value = '192.0.2.20';
+  nodes['bridge-ip'].value = '192.168.1.20';
   const sent = [], calls = [], scheduled = [];
-  const config = {host:'192.0.2.20',username:'valid-user',clientkey:'a'.repeat(32),certificate_sha256:'b'.repeat(64)};
+  const config = {host:'192.168.1.20',username:'valid-user',clientkey:'a'.repeat(32),certificate_sha256:'b'.repeat(64)};
   let listener;
   class Xhr {
     open(method,path) { this.method=method;this.path=path; }

@@ -5,7 +5,7 @@ const fs = require('fs');
 const vm = require('vm');
 const actualPairing = require('./pairing');
 const token = 'c'.repeat(64);
-const config = {host:'192.0.2.20',username:'valid-user',clientkey:'a'.repeat(32),certificate_sha256:'b'.repeat(64)};
+const config = {host:'192.168.1.20',username:'valid-user',clientkey:'a'.repeat(32),certificate_sha256:'b'.repeat(64)};
 const files = {}, logs = [];
 let handler;
 const fakeFs = {

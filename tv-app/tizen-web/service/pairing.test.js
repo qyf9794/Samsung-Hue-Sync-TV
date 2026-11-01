@@ -5,21 +5,21 @@ const EventEmitter = require('events');
 const pairing = require('./pairing');
 
 async function run() {
-  assert(pairing.validHost('192.0.2.20'));
-  assert(!pairing.validHost('192.000.2.20'));
+  assert(pairing.validHost('192.168.1.20'));
+  assert(!pairing.validHost('192.168.001.20'));
   assert(!pairing.validHost('127.0.0.1'));
   assert(!pairing.validHost('example.com'));
   const fingerprint = 'a'.repeat(64);
   const success = JSON.stringify([{success:{username:'valid-user',clientkey:'b'.repeat(32)}}]);
-  assert.strictEqual(pairing.parseResponse('192.0.2.20',fingerprint,success).username,'valid-user');
-  assert.throws(() => pairing.parseResponse('192.0.2.20',fingerprint,JSON.stringify([{error:{type:101}}])),/按下/);
-  assert.throws(() => pairing.parseResponse('192.0.2.20',fingerprint,JSON.stringify([{success:{username:'valid-user'}}])),/完整/);
+  assert.strictEqual(pairing.parseResponse('192.168.1.20',fingerprint,success).username,'valid-user');
+  assert.throws(() => pairing.parseResponse('192.168.1.20',fingerprint,JSON.stringify([{error:{type:101}}])),/按下/);
+  assert.throws(() => pairing.parseResponse('192.168.1.20',fingerprint,JSON.stringify([{success:{username:'valid-user'}}])),/完整/);
 
   const original = https.request;
   try {
     let requestBody;
     https.request = (options, onResponse) => {
-      assert.strictEqual(options.host,'192.0.2.20');
+      assert.strictEqual(options.host,'192.168.1.20');
       assert.strictEqual(options.path,'/api');
       const request = new EventEmitter();
       request.setTimeout = () => {};
@@ -34,9 +34,9 @@ async function run() {
       };
       return request;
     };
-    const result = await new Promise((resolve,reject) => pairing.pair('192.0.2.20',(error,value) => error ? reject(error) : resolve(value)));
+    const result = await new Promise((resolve,reject) => pairing.pair('192.168.1.20',(error,value) => error ? reject(error) : resolve(value)));
     assert.strictEqual(requestBody.generateclientkey,true);
-    assert.strictEqual(result.host,'192.0.2.20');
+    assert.strictEqual(result.host,'192.168.1.20');
     assert.strictEqual(result.clientkey,'b'.repeat(32));
     assert.strictEqual(result.certificate_sha256,require('crypto').createHash('sha256').update('test certificate').digest('hex'));
   } finally { https.request = original; }

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920,height=1080">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src http://127.0.0.1:18765; style-src 'self'; script-src 'self'">
+<title>画面灯光同步</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <div class="kicker">电视与灯光</div>
+  <h1>画面灯光同步</h1>
+  <p>让灯光跟随电视画面变化。</p>
+  <section class="panel">
+    <div class="label">当前状态</div>
+    <div id="status" class="status">正在连接服务…</div>
+    <div id="detail" class="detail">请稍候</div>
+    <div class="area-line"><span class="area-label">娱乐区域</span><button id="previous">上一项</button><strong id="area">正在读取…</strong><button id="next">下一项</button></div>
+    <div class="area-line sensitivity-line"><span class="area-label">敏感度</span><button id="less">降低</button><strong id="sensitivity">标准</strong><button id="more">提高</button><span class="hint">越高，灯光变化越快</span></div>
+    <div class="area-line bridge-line"><span class="area-label">Bridge 地址</span><input id="bridge-ip" type="text" inputmode="decimal" placeholder="例如 192.168.1.10" maxlength="15" aria-label="Bridge 局域网地址"><button id="pair">配对 Bridge</button></div>
+    <div class="hint bridge-hint">输入后按键盘的“完成”或遥控器返回键，再按下 Bridge 按钮并选择“配对 Bridge”。</div>
+    <div class="actions"><button id="start" autofocus>开始同步</button><button id="stop">停止同步</button></div>
+  </section>
+  <div class="foot">开始后可切换到 Apple TV 或游戏机。返回此页面可停止同步。</div>
+</main>
+<script src="control-token.js"></script><script src="app.js"></script>
+</body>
+</html>

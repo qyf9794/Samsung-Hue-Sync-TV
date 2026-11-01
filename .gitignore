@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/build/
+**/deployment/
+*.wgt
+*.tpk
+*.p12
+*.pfx
+*.pem
+*.key
+**/control-token.json
+**/control-token.js
+**/hue-bridge.json
+**/bridge-credentials.json
+**/engine-diagnostic.log
+.DS_Store

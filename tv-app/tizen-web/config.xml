@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://local.huesync.tv" version="0.2.0" viewmodes="maximized">
+  <tizen:application id="HueSyncTV1.main" package="HueSyncTV1" required_version="5.5" />
+  <name>画面灯光同步</name>
+  <content src="index.html" />
+  <icon src="icon.png" />
+  <access origin="http://127.0.0.1:18765" subdomains="false" />
+  <tizen:privilege name="http://tizen.org/privilege/internet" />
+  <tizen:privilege name="http://tizen.org/privilege/application.launch" />
+  <tizen:profile name="tv" />
+  <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="enable" encryption="disable" install-location="auto" hwkey-event="enable" />
+  <tizen:service id="HueSyncTV1.service" auto-restart="false">
+    <tizen:content src="service/index.js" />
+    <tizen:name>画面灯光同步服务</tizen:name>
+    <tizen:icon src="icon.png" />
+    <tizen:description>控制灯光同步</tizen:description>
+    <tizen:category name="http://tizen.org/category/service" />
+  </tizen:service>
+</widget>

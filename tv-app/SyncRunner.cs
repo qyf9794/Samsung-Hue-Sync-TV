@@ -26,7 +26,7 @@ namespace HueTvSync
     }
     internal static class ColorFilter
     {
-        public static Rgb[] Apply(IReadOnlyList<Channel> channels,Rgb[] raw,Rgb[]? previous,double spatial,double temporal)
+        public static Rgb[] Apply(IReadOnlyList<Channel> channels,Rgb[] raw,Rgb[]? previous,double spatial,double temporal,double? singleTemporal=null)
         {
             if(channels.Count!=raw.Length || (previous!=null&&previous.Length!=raw.Length)) throw new ArgumentException("Channel count mismatch");
             var result=(Rgb[])raw.Clone();
@@ -41,7 +41,11 @@ namespace HueTvSync
                     result[indices[i]]=Rgb.Mix(center,neighbor,spatial);
                 }
             }
-            if(previous!=null) for(int i=0;i<result.Length;i++) result[i]=Rgb.Mix(previous[i],result[i],temporal);
+            if(previous!=null) for(int i=0;i<result.Length;i++)
+            {
+                bool single=channels[i].Group.Length==0 || channels.Count(c=>c.Group==channels[i].Group)==1;
+                result[i]=Rgb.Mix(previous[i],result[i],single ? singleTemporal ?? temporal : temporal);
+            }
             return result;
         }
     }
@@ -81,7 +85,7 @@ namespace HueTvSync
                     double elapsed=(now-lastSample)/(double)Stopwatch.Frequency;
                     lastSample=now;
                     double tau=timeConstant?.Invoke() ?? Sensitivity.FromLegacyWeight(config.TemporalMix);
-                    filtered=ColorFilter.Apply(area.Channels,next,filtered,config.SpatialMix,Sensitivity.Weight(tau,elapsed));
+                    filtered=ColorFilter.Apply(area.Channels,next,filtered,config.SpatialMix,Sensitivity.Weight(tau,elapsed),Sensitivity.Weight(tau*1.5,elapsed));
                 }
                 Console.WriteLine("Frames sent: "+frames);
             } finally {

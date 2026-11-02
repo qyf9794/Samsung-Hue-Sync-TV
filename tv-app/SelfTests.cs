@@ -34,10 +34,13 @@ namespace HueTvSync
                 var samplePoints=SamsungSampler.ScreenPositions(channels,1000,1000,0,0);
                 Require(samplePoints[0]==(500,500) && samplePoints[1]==(200,500) && samplePoints[2]==(500,500) && samplePoints[3]==(800,500),"screen-wide gradient positions");
                 var plan=SamsungSampler.CreateSamplePlan(channels,1000,1000,0,0);
-                Require(plan.Points.Count==8 && plan.Points.Take(7).Select(p=>p.X).SequenceEqual(new[]{50,200,350,500,650,800,950}),"seven screen-wide points");
-                Require(plan.ChannelSamples[1].SequenceEqual(new[]{0,1,2}) && plan.ChannelSamples[2].SequenceEqual(new[]{2,3,4}) && plan.ChannelSamples[3].SequenceEqual(new[]{4,5,6}) && plan.ChannelSamples[0].SequenceEqual(new[]{7}),"overlapping averages map to their channels");
-                var averaged=plan.Average(Enumerable.Range(0,8).Select(i=>new Rgb(i*100,i*10,i)).ToArray());
-                Require(averaged[0].R==700 && averaged[1].R==100 && averaged[2].R==300 && averaged[3].R==500 && averaged[2].G==30 && averaged[2].B==3,"three-point RGB averages");
+                Require(plan.Points.Count==12 && plan.Points.Take(7).Select(p=>p.X).SequenceEqual(new[]{50,200,350,500,650,800,950}),"seven screen-wide points");
+                Require(plan.ChannelSamples[1].SequenceEqual(new[]{0,1,2}) && plan.ChannelSamples[2].SequenceEqual(new[]{2,3,4}) && plan.ChannelSamples[3].SequenceEqual(new[]{4,5,6}) && plan.ChannelSamples[0].SequenceEqual(new[]{7,8,9,10,11}),"overlapping gradient and five-point single-light samples");
+                Require(plan.Points.Skip(7).SequenceEqual(new[]{(500,500),(450,500),(550,500),(500,450),(500,550)}),"single-light samples surround its position");
+                var averaged=plan.Average(Enumerable.Range(0,12).Select(i=>new Rgb(i*100,i*10,i)).ToArray());
+                Require(averaged[0].R==900 && averaged[1].R==100 && averaged[2].R==300 && averaged[3].R==500 && averaged[2].G==30 && averaged[2].B==3,"gradient and single-light RGB averages");
+                var edgePlan=SamsungSampler.CreateSamplePlan(new[]{new Channel {X=-1,Z=1}},1000,1000,16,16);
+                Require(edgePlan.Points.All(p=>p.X>=0 && p.Y>=0 && p.X<=984 && p.Y<=984),"single-light sample points stay on screen");
                 var offsetStrip=new[]{new Channel {Group="c",X=.1},new Channel {Group="c",X=.2},new Channel {Group="c",X=.3}};
                 var offsetPoints=SamsungSampler.ScreenPositions(offsetStrip,1000,1000,0,0);
                 Require(offsetPoints[0].X==550 && offsetPoints[1].X==600 && offsetPoints[2].X==650,"offset gradient keeps room positions");
@@ -51,6 +54,8 @@ namespace HueTvSync
                 Require(uniform.All(c=>Math.Abs(c.R-20)<.001 && Math.Abs(c.G-30)<.001 && Math.Abs(c.B-40)<.001),"blending preserves uniform color");
                 var s=ColorFilter.Apply(channels,new[]{new Rgb(0,0,0),new Rgb(0,0,0),new Rgb(0,0,0),new Rgb(0,0,0)},r,.3,.25);
                 Require(s[1].R==525,"temporal smoothing");
+                var reduced=ColorFilter.Apply(channels,new[]{new Rgb(1000,0,0),new Rgb(1000,0,0),new Rgb(1000,0,0),new Rgb(1000,0,0)},new[]{new Rgb(0,0,0),new Rgb(0,0,0),new Rgb(0,0,0),new Rgb(0,0,0)},.3,.4,.2);
+                Require(reduced[0].R==200 && reduced[1].R==400 && reduced[2].R==400 && reduced[3].R==400,"stronger temporal smoothing only for single-channel devices");
                 var previous=new[]{new Rgb(0,0,0)};var change=new[]{new Rgb(1000,0,0)};var single=new[]{new Channel()};
                 double low=ColorFilter.Apply(single,change,previous,0,Sensitivity.Weight(Sensitivity.TimeConstant(1),.1))[0].R;
                 double standard=ColorFilter.Apply(single,change,previous,0,Sensitivity.Weight(Sensitivity.TimeConstant(3),.1))[0].R;

@@ -34,11 +34,11 @@ namespace HueTvSync
                 var samplePoints=SamsungSampler.ScreenPositions(channels,1000,1000,0,0);
                 Require(samplePoints[0]==(500,500) && samplePoints[1]==(200,500) && samplePoints[2]==(500,500) && samplePoints[3]==(800,500),"screen-wide gradient positions");
                 var plan=SamsungSampler.CreateSamplePlan(channels,1000,1000,0,0);
-                Require(plan.Points.Count==12 && plan.Points.Take(7).Select(p=>p.X).SequenceEqual(new[]{50,200,350,500,650,800,950}),"seven screen-wide points");
-                Require(plan.ChannelSamples[1].SequenceEqual(new[]{0,1,2}) && plan.ChannelSamples[2].SequenceEqual(new[]{2,3,4}) && plan.ChannelSamples[3].SequenceEqual(new[]{4,5,6}) && plan.ChannelSamples[0].SequenceEqual(new[]{7,8,9,10,11}),"overlapping gradient and five-point single-light samples");
-                Require(plan.Points.Skip(7).SequenceEqual(new[]{(500,500),(450,500),(550,500),(500,450),(500,550)}),"single-light samples surround its position");
-                var averaged=plan.Average(Enumerable.Range(0,12).Select(i=>new Rgb(i*100,i*10,i)).ToArray());
-                Require(averaged[0].R==900 && averaged[1].R==100 && averaged[2].R==300 && averaged[3].R==500 && averaged[2].G==30 && averaged[2].B==3,"gradient and single-light RGB averages");
+                Require(plan.Points.Count==10 && plan.Points.Take(7).Select(p=>p.X).SequenceEqual(new[]{50,200,350,500,650,800,950}),"seven screen-wide points");
+                Require(plan.ChannelSamples[1].SequenceEqual(new[]{0,1,2}) && plan.ChannelSamples[2].SequenceEqual(new[]{2,3,4}) && plan.ChannelSamples[3].SequenceEqual(new[]{4,5,6}) && plan.ChannelSamples[0].SequenceEqual(new[]{7,8,9}),"overlapping gradient and three-point single-light samples");
+                Require(plan.Points.Skip(7).SequenceEqual(new[]{(500,500),(450,500),(550,500)}),"single-light samples use center, left and right");
+                var averaged=plan.Average(Enumerable.Range(0,10).Select(i=>new Rgb(i*100,i*10,i)).ToArray());
+                Require(averaged[0].R==800 && averaged[1].R==100 && averaged[2].R==300 && averaged[3].R==500 && averaged[2].G==30 && averaged[2].B==3,"gradient and single-light RGB averages");
                 var edgePlan=SamsungSampler.CreateSamplePlan(new[]{new Channel {X=-1,Z=1}},1000,1000,16,16);
                 Require(edgePlan.Points.All(p=>p.X>=0 && p.Y>=0 && p.X<=984 && p.Y<=984),"single-light sample points stay on screen");
                 var offsetStrip=new[]{new Channel {Group="c",X=.1},new Channel {Group="c",X=.2},new Channel {Group="c",X=.3}};

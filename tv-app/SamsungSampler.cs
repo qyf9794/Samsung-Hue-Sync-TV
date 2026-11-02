@@ -127,12 +127,10 @@ namespace HueTvSync
                 plan.Points.Add((x,y));
                 if(single)
                 {
-                    int xStep=(int)Math.Round((width-dx)*.05),yStep=(int)Math.Round((height-dy)*.05);
+                    int xStep=(int)Math.Round((width-dx)*.05);
                     plan.Points.Add((Math.Max(0,x-xStep),y));
                     plan.Points.Add((Math.Min(width-dx,x+xStep),y));
-                    plan.Points.Add((x,Math.Max(0,y-yStep)));
-                    plan.Points.Add((x,Math.Min(height-dy,y+yStep)));
-                    plan.ChannelSamples[i]=new[]{start,start+1,start+2,start+3,start+4};
+                    plan.ChannelSamples[i]=new[]{start,start+1,start+2};
                 }
                 else plan.ChannelSamples[i]=new[]{start};
             }

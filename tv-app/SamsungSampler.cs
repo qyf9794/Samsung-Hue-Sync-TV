@@ -100,23 +100,22 @@ namespace HueTvSync
             var plan=new SamplePlan(channels.Count);
             foreach(var group in channels.Select((c,i)=>(c,i)).Where(p=>p.c.Group.Length>0).GroupBy(p=>p.c.Group))
             {
-                var ordered=group.OrderBy(p=>p.c.X).ToArray();
-                if(ordered.Length!=3 || ordered[0].c.X>-.2 || ordered[2].c.X<.2 || ordered[2].c.X-ordered[0].c.X<.6) continue;
-                var left=positions[ordered[0].i];var middle=positions[ordered[1].i];var right=positions[ordered[2].i];
+                var ordered=group.OrderBy(p=>p.c.X).ThenByDescending(p=>p.c.Z).ToArray();
+                if(ordered.Length<2) continue;
                 int start=plan.Points.Count;
-                // Seven points around the existing three centers. Shared boundary points
-                // contribute to both neighboring averages, while heights follow the strip.
+                // Each channel gets its center and two shared boundary samples.
+                // Extrapolate the end samples by half the nearest channel spacing.
                 (int X,int Y) Between((int X,int Y) a,(int X,int Y) b,double t) =>
                     (Math.Max(0,Math.Min(width-dx,(int)Math.Round(a.X+(b.X-a.X)*t))),
                      Math.Max(0,Math.Min(height-dy,(int)Math.Round(a.Y+(b.Y-a.Y)*t))));
-                plan.Points.Add(Between(left,middle,-.5));
-                plan.Points.Add(left);
-                plan.Points.Add(Between(left,middle,.5));
-                plan.Points.Add(middle);
-                plan.Points.Add(Between(middle,right,.5));
-                plan.Points.Add(right);
-                plan.Points.Add(Between(middle,right,1.5));
-                for(int i=0;i<3;i++) plan.ChannelSamples[ordered[i].i]=new[]{start+2*i,start+2*i+1,start+2*i+2};
+                plan.Points.Add(Between(positions[ordered[0].i],positions[ordered[1].i],-.5));
+                for(int i=0;i<ordered.Length;i++)
+                {
+                    plan.Points.Add(positions[ordered[i].i]);
+                    if(i+1<ordered.Length) plan.Points.Add(Between(positions[ordered[i].i],positions[ordered[i+1].i],.5));
+                }
+                plan.Points.Add(Between(positions[ordered[ordered.Length-2].i],positions[ordered[ordered.Length-1].i],1.5));
+                for(int i=0;i<ordered.Length;i++) plan.ChannelSamples[ordered[i].i]=new[]{start+2*i,start+2*i+1,start+2*i+2};
             }
             for(int i=0;i<channels.Count;i++) if(plan.ChannelSamples[i]==null)
             {

@@ -44,7 +44,14 @@ namespace HueTvSync
                 var offsetStrip=new[]{new Channel {Group="c",X=.1},new Channel {Group="c",X=.2},new Channel {Group="c",X=.3}};
                 var offsetPoints=SamsungSampler.ScreenPositions(offsetStrip,1000,1000,0,0);
                 Require(offsetPoints[0].X==550 && offsetPoints[1].X==600 && offsetPoints[2].X==650,"offset gradient keeps room positions");
-                Require(SamsungSampler.CreateSamplePlan(offsetStrip,1000,1000,0,0).Points.Count==3,"offset lights keep individual samples");
+                var offsetPlan=SamsungSampler.CreateSamplePlan(offsetStrip,1000,1000,0,0);
+                Require(offsetPlan.Points.Count==7 && offsetPlan.Points[1].X==550 && offsetPlan.Points[3].X==600 && offsetPlan.Points[5].X==650,"offset gradient uses overlapping samples without stretching room positions");
+                var twoPlan=SamsungSampler.CreateSamplePlan(new[]{new Channel {Group="two",X=-.2,Z=.3},new Channel {Group="two",X=.2,Z=-.3}},1000,1000,0,0);
+                Require(twoPlan.Points.Count==5 && twoPlan.ChannelSamples[0].SequenceEqual(new[]{0,1,2}) && twoPlan.ChannelSamples[1].SequenceEqual(new[]{2,3,4}) && twoPlan.Points[2]==(500,500),"two-channel gradient shares position and height boundary");
+                var fourPlan=SamsungSampler.CreateSamplePlan(new[]{new Channel {Group="four",X=-.4},new Channel {Group="four",X=-.2},new Channel {Group="four",X=.2},new Channel {Group="four",X=.4}},1000,1000,0,0);
+                Require(fourPlan.Points.Count==9 && fourPlan.ChannelSamples[3].SequenceEqual(new[]{6,7,8}),"four-channel gradient uses overlapping averages");
+                var reordered=SamsungSampler.CreateSamplePlan(new[]{new Channel {Id=3,Group="reordered",X=.4},new Channel {Id=1,Group="reordered",X=-.4},new Channel {Id=2,Group="reordered",X=0}},1000,1000,0,0);
+                Require(reordered.ChannelSamples[0].SequenceEqual(new[]{4,5,6}) && reordered.ChannelSamples[1].SequenceEqual(new[]{0,1,2}) && reordered.ChannelSamples[2].SequenceEqual(new[]{2,3,4}),"channel IDs retain their positions when bridge order changes");
                 var raw=new[]{new Rgb(100,100,100),new Rgb(1000,0,0),new Rgb(0,0,0),new Rgb(0,0,1000)};
                 var r=ColorFilter.Apply(channels,raw,null,.3,.28);
                 Require(r[0].R==100 && r[1].R==700 && r[2].R==150 && r[2].B==150 && r[3].B==700,"spatial grouping");

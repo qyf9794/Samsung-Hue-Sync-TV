@@ -32,7 +32,7 @@ namespace HueTvSync
             var result=(Rgb[])raw.Clone();
             foreach(var group in channels.Select((c,i)=>(c,i)).Where(x=>x.c.Group.Length>0).GroupBy(x=>x.c.Group))
             {
-                var indices=group.OrderBy(x=>x.c.X).Select(x=>x.i).ToArray();
+                var indices=group.OrderBy(x=>x.c.X).ThenByDescending(x=>x.c.Z).Select(x=>x.i).ToArray();
                 if(indices.Length<2) continue;
                 for(int i=0;i<indices.Length;i++)
                 {
